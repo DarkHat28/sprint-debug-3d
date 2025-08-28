@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://bc18x8fsluebc"]
+[gd_scene load_steps=22 format=3 uid="uid://bc18x8fsluebc"]
 
 [ext_resource type="Script" uid="uid://d2ldeq55rqqko" path="res://player.gd" id="1_f3sb7"]
 [ext_resource type="Script" uid="uid://cyqd0a8pivx6g" path="res://camera.gd" id="2_fj7yv"]
 [ext_resource type="Texture2D" uid="uid://qmwm1tc42o8f" path="res://icon.svg" id="3_tlwt5"]
+[ext_resource type="Material" uid="uid://cdx4so8so7kej" path="res://standard_material.tres" id="4_aqk2v"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fj7yv"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -17,7 +18,7 @@ sky = SubResource("Sky_tlwt5")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tlwt5"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_036b0"]
 albedo_texture = ExtResource("3_tlwt5")
 metallic_specular = 0.0
 roughness = 0.0
@@ -25,7 +26,7 @@ uv1_scale = Vector3(15, 15, 15)
 uv1_triplanar = true
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dwbse"]
-material = SubResource("StandardMaterial3D_tlwt5")
+material = SubResource("StandardMaterial3D_036b0")
 radius = 0.25
 height = 1.8
 
@@ -47,6 +48,28 @@ size = Vector3(50, 0.2, 50)
 [sub_resource type="BoxShape3D" id="BoxShape3D_gbfbk"]
 size = Vector3(50, 0.2, 50)
 
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_tlwt5"]
+material = ExtResource("4_aqk2v")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_aqk2v"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_036b0"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_dwbse"]
+material = ExtResource("4_aqk2v")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pkg7o"]
+size = Vector3(5, 1, 5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gbfbk"]
+material = ExtResource("4_aqk2v")
+size = Vector3(5, 1, 5)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ioo17"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_wse8f"]
+material = ExtResource("4_aqk2v")
+
 [node name="World" type="Node3D"]
 
 [node name="Environments" type="Node3D" parent="."]
@@ -61,10 +84,13 @@ shadow_enabled = true
 
 [node name="Player" type="CharacterBody3D" parent="."]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88059, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88059, 2.44357)
 script = ExtResource("1_f3sb7")
 
-[node name="Camera" type="Camera3D" parent="Player"]
+[node name="CameraOffsetHorizontal" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, -0.11)
+
+[node name="Camera" type="Camera3D" parent="Player/CameraOffsetHorizontal"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.41246, 1.57033)
 script = ExtResource("2_fj7yv")
@@ -84,3 +110,67 @@ skeleton = NodePath("../../Player")
 
 [node name="Collision" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("BoxShape3D_gbfbk")
+
+[node name="WorldObjects" type="Node3D" parent="."]
+
+[node name="Capsule" type="RigidBody3D" parent="WorldObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0549471, 4.44326, -2.29968)
+
+[node name="Mesh" type="MeshInstance3D" parent="WorldObjects/Capsule"]
+mesh = SubResource("CapsuleMesh_tlwt5")
+
+[node name="Collision" type="CollisionShape3D" parent="WorldObjects/Capsule"]
+shape = SubResource("CapsuleShape3D_aqk2v")
+
+[node name="Sphere" type="RigidBody3D" parent="WorldObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.97795, 4.44326, -0.411176)
+
+[node name="Collision" type="CollisionShape3D" parent="WorldObjects/Sphere"]
+shape = SubResource("SphereShape3D_036b0")
+
+[node name="Mesh" type="MeshInstance3D" parent="WorldObjects/Sphere"]
+mesh = SubResource("SphereMesh_dwbse")
+
+[node name="Box" type="RigidBody3D" parent="WorldObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.01667, 1.35932, 7.78535)
+
+[node name="Collision" type="CollisionShape3D" parent="WorldObjects/Box"]
+shape = SubResource("BoxShape3D_pkg7o")
+
+[node name="Mesh" type="MeshInstance3D" parent="WorldObjects/Box"]
+mesh = SubResource("BoxMesh_gbfbk")
+
+[node name="Cylinder" type="RigidBody3D" parent="WorldObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.64489, 4.44326, -2.29968)
+
+[node name="Collision" type="CollisionShape3D" parent="WorldObjects/Cylinder"]
+shape = SubResource("CylinderShape3D_ioo17")
+
+[node name="Mesh" type="MeshInstance3D" parent="WorldObjects/Cylinder"]
+mesh = SubResource("CylinderMesh_wse8f")
+
+[node name="InputLabel" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_right = 180.0
+offset_bottom = 104.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/outline_size = 5
+theme_override_constants/shadow_outline_size = 6
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+
+[node name="UpdateTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.1
+autostart = true
+
+[connection signal="timeout" from="UpdateTimer" to="Player" method="_on_update_timer_timeout"]

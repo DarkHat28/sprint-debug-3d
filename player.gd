@@ -2,6 +2,12 @@ extends CharacterBody3D
 
 @onready var camera: Camera3D = %Camera
 
+# For key Debugging
+@onready var input_label: Label = %InputLabel
+@onready var update_timer: Timer = %UpdateTimer
+var pressed_keys: Dictionary = {}
+var current_fps: float = 0
+
 @export_group("Movement")
 @export var walk_speed := 3.0
 @export var sprint_speed := 6.0
@@ -13,22 +19,30 @@ extends CharacterBody3D
 @export var jump_time_to_peak : float = 0.4
 @export var jump_time_to_descent : float = 0.3
 ## Calculated 
-@onready var jump_velocity: float = (2.0 * jump_height) / jump_time_to_peak * -1
-@onready var jump_gravity: float = (-2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak) * -1
-@onready var fall_gravity: float = (-2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent) * -1
+@onready var jump_velocity: float = -(2.0 * jump_height / jump_time_to_peak)
+@onready var jump_gravity: float = (2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak)
+@onready var fall_gravity: float = (2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent)
 ## source: https://youtu.be/IOe1aGY6hXA?feature=shared
 
 ## Input Realted Variables
 var input_dir: Vector2
 var direction: Vector3
 var is_sprinting: bool = false
+var is_jumping: bool = false
+
 
 func _ready():
 	# Make sure the mouse is captured when the game starts
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	input_label.text = "Ready - press keys!"
+
+func _input(event):
+	debugg_input(event)
 
 func _physics_process(delta):
-	#is_jumping = Input.is_action_just_pressed("jump")
+	view_fps()
+	
+	is_jumping = Input.is_action_just_pressed("jump")
 	is_sprinting = Input.is_action_pressed("sprint")
 	
 	# Get input direction
@@ -39,7 +53,6 @@ func _physics_process(delta):
 	jump()
 	apply_gravity(delta)
 	move_and_slide()
-
 
 func horizontal_movement(delta: float) -> void:
 	# Apply movement
@@ -69,3 +82,24 @@ func apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 		velocity.y = min(velocity.y, gravity) # Limit fall speed
+		#print("If Not is-on-floor: ", gravity)
+	#print("If is-on-floor: ", gravity)
+
+func debugg_input(event):
+	if not event is InputEventKey:
+		return
+	var key_name = OS.get_keycode_string(event.keycode)
+	if event.pressed:
+		pressed_keys[key_name] = true
+	else:
+		pressed_keys.erase(key_name)
+
+func view_fps() -> void:
+	# Update FPS every physics frame (smoother)
+	current_fps = Engine.get_frames_per_second() # For Debugging
+
+func _on_update_timer_timeout():
+	var keys_array = pressed_keys.keys()
+	var keys_text = "Keys: " + ", ".join(keys_array) if keys_array else "No keys pressed"
+	input_label.text = "FPS: " + str(current_fps) + "\n" + keys_text
+	#input_label.text = "FPS: " + str(Engine.get_frames_per_second()) + "\nKeys: " + ", ".join(keys_array) if keys_array else "No keys pressed"
